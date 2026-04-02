@@ -10,14 +10,14 @@ __  __          _  __           _____   ______      _
 ║                      SECURITY ASSESSMENT REPORT                        ║
 ║                      SECURITY ASSESSMENT REPORT                        ║
 ║                        TARGET: RootMe (TryHackMe)                      ║
-║                        OPERATOR: makarov_XSec                           ║
+║                        OPERATOR: makarov_XSec                          ║
 ╚════════════════════════════════════════════════════════════════════════╝
 
 ╔════════════════════════════════════════════════════════════════════════╗
-║                             PHASE 01: ENUMERATION                       ║
+║                             PHASE 01: ENUMERATION                      ║
 ╚════════════════════════════════════════════════════════════════════════╝
 
-| STEP | COMMAND / METHOD                                  | RESULT                          |
+| STEP | COMMAND / METHOD                                 | RESULT                          |
 |------|--------------------------------------------------|--------------------------------|
 | 1    | ping                                             | Host reachable                  |
 | 2    | nmap -p- -sS -sC -sV --open --min-rate=2000 -vvv -Pn 10.113.170.80 | Ports 22 (SSH), 80 (HTTP) OPEN |
@@ -25,40 +25,40 @@ __  __          _  __           _____   ______      _
 | 4    | gobuster                                         | /uploads and /panel discovered  |
 
 ╔════════════════════════════════════════════════════════════════════════╗
-║                          PHASE 02: INITIAL ACCESS                       ║
+║                          PHASE 02: INITIAL ACCESS                      ║
 ╚════════════════════════════════════════════════════════════════════════╝
 
-| STEP | ACTION                                           | RESULT                          |
-|------|-------------------------------------------------|--------------------------------|
+| STEP | ACTION                                          | RESULT                          |
+|------|-------------------------------------------------|-------------------------------- |
 | 1    | File upload functionality                       | Upload allowed                  |
-| 2    | Change extension (.php → .phtml)               | Upload successful               |
-| 3    | Access payload via /uploads                     | Reverse shell obtained           |
+| 2    | Change extension (.php → .phtml)                | Upload successful               |
+| 3    | Access payload via /uploads                     | Reverse shell obtained          |
 | 4    | Netcat listener (port 443)                      | Remote shell as www-data        |
 | 5    | Reverse shell (port 444)                        | Stable shell achieved           |
 
 ╔════════════════════════════════════════════════════════════════════════╗
-║                        PHASE 03: POST-EXPLOITATION                       ║
+║                        PHASE 03: POST-EXPLOITATION                     ║
 ╚════════════════════════════════════════════════════════════════════════╝
 
-| STEP | ACTION                                           | RESULT                          |
+| STEP | ACTION                                          | RESULT                          |
 |------|-------------------------------------------------|--------------------------------|
 | 1    | Manual directory exploration                    | Limited access (non-root)      |
-| 2    | /var/www                                        | user.txt found                  |
+| 2    | /var/www                                        | user.txt found                 |
 | 3    | cat user.txt                                    | THM{y0u_g0t_a_sh3ll}           |
 
 ╔════════════════════════════════════════════════════════════════════════╗
-║                       PHASE 04: PRIVILEGE ESCALATION                     ║
+║                       PHASE 04: PRIVILEGE ESCALATION                   ║
 ╚════════════════════════════════════════════════════════════════════════╝
 
-| STEP | COMMAND / METHOD                                 | RESULT                         |
+| STEP | COMMAND / METHOD                                 | RESULT                        |
 |------|-------------------------------------------------|--------------------------------|
 | 1    | find / -perm -4000 2>/dev/null                  | Multiple SUID binaries found   |
 | 2    | GTFOBins                                        | Python SUID exploitation identified |
-| 3    | python -c 'import os; os.execl("/bin/sh","sh","-p")' | Root shell obtained          |
-| 4    | /root directory                                 | Root flag retrieved             |
+| 3    | python -c 'import os; os.execl("/bin/sh","sh","-p")' | Root shell obtained       |
+| 4    | /root directory                                 | Root flag retrieved            |
 
 ╔════════════════════════════════════════════════════════════════════════╗
-║                       PHASE 05: VULNERABILITY DISCLOSURE                ║
+║                       PHASE 05: VULNERABILITY DISCLOSURE               ║
 ╚════════════════════════════════════════════════════════════════════════╝
 
 **FINDING: Unrestricted File Upload (Critical)**  
@@ -78,7 +78,7 @@ DETAILS: Sensitive files (user.txt) accessible from web directory.
 FIX: Restrict access permissions and separate web root from sensitive data.  
 
 ╔════════════════════════════════════════════════════════════════════════╗
-║                               CONCLUSION                                 ║
+║                               CONCLUSION                               ║
 ╚════════════════════════════════════════════════════════════════════════╝
 
 The target machine was successfully compromised through a file upload vulnerability, leading to remote code execution. Privilege escalation was achieved via misconfigured SUID binaries, resulting in full root access.
